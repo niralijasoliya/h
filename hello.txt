@@ -1,0 +1,845 @@
+Custom Validation
+create custom class
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web;
+
+namespace DataAnnotationDemo.CustomValidation
+{
+    public class MinAgeAttribute: ValidationAttribute
+    {
+        private int minAge;
+        public MinAgeAttribute(int value)
+        {
+            minAge = value;
+        }
+
+        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        {
+            if (value != null)
+            {
+                if (value is int)
+                {
+                    int minimumage = (int)value;
+                    if (minimumage < minAge)
+                    {
+                        return new ValidationResult("Minimum age must be " + minAge);
+                    }
+                }
+            }
+            return ValidationResult.Success;
+        }
+
+    }
+}
+-----------------------------
+call it by
+[Required(ErrorMessage = "Age is Required")]
+        [DataAnnotationDemo.CustomValidation.MinAge(18)]
+        //[Range(1, 120, ErrorMessage = "Age must be between 1-120 in years.")]
+        public int Age { get; set; }
+-------------------------------------
+Authentication filter
+CustomAuthFilter.cs class in new folder
+using System;  
+using System.Web.Mvc;  
+using System.Web.Mvc.Filters;  
+using System.Web.Routing;  
+  
+namespace CustomAuthorizationFilter.Infrastructure  
+{  
+    public class CustomAuthenticationFilter: ActionFilterAttribute, IAuthenticationFilter  
+    {  
+        public void OnAuthentication(AuthenticationContext filterContext)  
+        {  
+            if (string.IsNullOrEmpty(Convert.ToString(filterContext.HttpContext.Session["UserName"])))  
+            {  
+                filterContext.Result = new HttpUnauthorizedResult();  
+            }  
+        }  
+        public void OnAuthenticationChallenge(AuthenticationChallengeContext filterContext)  
+        {  
+            if (filterContext.Result == null || filterContext.Result is HttpUnauthorizedResult)  
+            {  
+                //Redirecting the user to the Login View of Account Controller  
+                filterContext.Result = new RedirectToRouteResult(  
+                new RouteValueDictionary  
+                {  
+                     { "controller", "Account" },  
+                     { "action", "Login" }  
+                });  
+            }  
+        }  
+    }  
+}  
+
+Authorization filter
+Role based authentication
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Security;
+namespace SecurityDemoMVC.Models
+{
+    public class UsersRoleProvider : RoleProvider
+    {
+        public override string ApplicationName
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+        public override void AddUsersToRoles(string[] usernames, string[] roleNames)
+        {
+            throw new NotImplementedException();
+        }
+        public override void CreateRole(string roleName)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool DeleteRole(string roleName, bool throwOnPopulatedRole)
+        {
+            throw new NotImplementedException();
+        }
+        public override string[] FindUsersInRole(string roleName, string usernameToMatch)
+        {
+            throw new NotImplementedException();
+        }
+        public override string[] GetAllRoles()
+        {
+            throw new NotImplementedException();
+        }
+        public override string[] GetRolesForUser(string username)
+        {
+            using (EmployeeDBContext context = new EmployeeDBContext())
+            {
+                var userRoles = (from user in context.Users
+                                 join roleMapping in context.UserRolesMappings
+                                 on user.ID equals roleMapping.UserID
+                                 join role in context.RoleMasters
+                                 on roleMapping.RoleID equals role.ID
+                                 where user.UserName == username
+                                 select role.RollName).ToArray();
+                return userRoles;
+            }
+        }
+        public override string[] GetUsersInRole(string roleName)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool IsUserInRole(string username, string roleName)
+        {
+            throw new NotImplementedException();
+        }
+        public override void RemoveUsersFromRoles(string[] usernames, string[] roleNames)
+        {
+            throw new NotImplementedException();
+        }
+        public override bool RoleExists(string roleName)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}
+------------------------------------------------------------------------------------------------
+Add the following code within the system.web section of your web.config file.
+
+<roleManager defaultProvider="usersRoleProvider" enabled="true" >
+  <providers>
+    <clear/>
+    <add name="usersRoleProvider" type="SecurityDemoMVC.Models.UsersRoleProvider"/>
+  </providers>
+</roleManager>
+-------
+#in controller
+[Authorize(Roles="Admin,User,Customer")]
+p aR index()
+
+
+web.config file and write the following code under the system.web section.
+1.	<authentication mode="Forms">  
+2.	     <forms loginUrl="/Home/Login"></forms>  
+3.	</authentication> 
+
+In Controller
+using CustomAuthorizationFilter.Models;  
+using System.Linq;  
+using System.Web.Mvc;  
+  
+namespace CustomAuthorizationFilter.Controllers  
+{  
+    public class AccountController : Controller  
+    {  
+        [HttpGet]  
+        public ActionResult Login()  
+        {  
+            return View();  
+        }  
+  
+        [HttpPost]  
+        public ActionResult Login(User model)  
+        {  
+            if (ModelState.IsValid)  
+            {  
+                using (var context = new SqlDbContext())  
+                {  
+                    User user = context.Users  
+                                       .Where(u => u.UserId == model.UserId && u.Password == model.Password)  
+                                       .FirstOrDefault();  
+  
+                    if (user != null)  
+                    {  
+                        Session["UserName"] = user.UserName;  
+                        Session["UserId"] = user.UserId;  
+                        return RedirectToAction("Index", "Home");  
+                    }  
+                    else  
+                    {  
+                        ModelState.AddModelError("", "Invalid User Name or Password");  
+                        return View(model);  
+                    }  
+                }  
+            }  
+            else  
+            {  
+                return View(model);  
+            }  
+        }  
+  
+        [HttpPost]  
+        [ValidateAntiForgeryToken]  
+        public ActionResult LogOff()  
+        {  
+            Session["UserName"] = string.Empty;  
+            Session["UserId"] = string.Empty;  
+            return RedirectToAction("Index", "Home");  
+        }  
+    }  
+}  
+
+Authentication filter
+namespace CustomAuthorizationFilter.Infrastructure  
+{  
+    public class CustomAuthenticationFilter: ActionFilterAttribute, IAuthenticationFilter  
+    {  
+        public void OnAuthentication(AuthenticationContext filterContext)  
+        {  
+            if (string.IsNullOrEmpty(Convert.ToString(filterContext.HttpContext.Session["UserName"])))  
+            {  
+                filterContext.Result = new HttpUnauthorizedResult();  
+            }  
+        }  
+        public void OnAuthenticationChallenge(AuthenticationChallengeContext filterContext)  
+        {  
+            if (filterContext.Result == null || filterContext.Result is HttpUnauthorizedResult)  
+            {  
+                //Redirecting the user to the Login View of Account Controller  
+                filterContext.Result = new RedirectToRouteResult(  
+                new RouteValueDictionary  
+                {  
+                     { "controller", "Account" },  
+                     { "action", "Login" }  
+                });  
+            }  
+        }  
+    }  
+}  
+
+CustomAuthorizeAttribute.cs
+public class CustomAuthorizeAttribute : AuthorizeAttribute  
+    {  
+        private readonly string[] allowedroles;  
+        public CustomAuthorizeAttribute(params string[] roles)  
+        {  
+            this.allowedroles = roles;  
+        }  
+        protected override bool AuthorizeCore(HttpContextBase httpContext)  
+        {  
+            bool authorize = false;  
+            var userId = Convert.ToString(httpContext.Session["UserId"]);  
+            if (!string.IsNullOrEmpty(userId))  
+                using (var context = new SqlDbContext())  
+                {  
+                    var userRole = (from u in context.Users  
+                                    join r in context.Roles on u.RoleId equals r.Id  
+                                    where u.UserId == userId  
+                                    select new  
+                                    {  
+                                        r.Name  
+                                    }).FirstOrDefault();  
+                    foreach (var role in allowedroles)  
+                    {  
+                        if (role == userRole.Name) return true;  
+                    }  
+                }  
+  
+  
+            return authorize;  
+        }  
+  
+        protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)  
+        {  
+            filterContext.Result = new RedirectToRouteResult(  
+               new RouteValueDictionary  
+               {  
+                    { "controller", "Home" },  
+                    { "action", "UnAuthorized" }  
+               });  
+        }  
+    }  
+}  
+
+In controller.cs file
+[CustomAuthenticationFilter]  
+    public class HomeController : Controller  
+    {  
+        [CustomAuthorize("Normal", "SuperAdmin")]  
+        public ActionResult Index()  
+        {  
+            return View();  
+        }  
+  
+        [CustomAuthorize("Admin", "SuperAdmin")]  
+        public ActionResult About()  
+        {  
+            ViewBag.Message = "Your application description page.";  
+  
+            return View();  
+        }  
+
+CRUD OPERATIONS USING AJAX
+Create db class and generate the db
+Create another class in model folder
+public class EmployeeDB  
+{  
+    //declare connection string  
+    string cs = ConfigurationManager.ConnectionStrings["DBCS"].ConnectionString;  
+  
+    //Return list of all Employees  
+    public List<Employee> ListAll()  
+    {  
+        List<Employee> lst = new List<Employee>();  
+        using(SqlConnection con=new SqlConnection(cs))  
+        {  
+            con.Open();  
+            SqlCommand com = new SqlCommand("SelectEmployee",con);  
+            com.CommandType = CommandType.StoredProcedure;  
+            SqlDataReader rdr = com.ExecuteReader();  
+            while(rdr.Read())  
+            {  
+                lst.Add(new Employee {   
+                    EmployeeID=Convert.ToInt32(rdr["EmployeeId"]),  
+                    Name=rdr["Name"].ToString(),  
+                    Age = Convert.ToInt32(rdr["Age"]),  
+                    State = rdr["State"].ToString(),  
+                    Country = rdr["Country"].ToString(),  
+                });  
+            }  
+            return lst;  
+        }  
+    }  
+  
+    //Method for Adding an Employee  
+    public int Add(Employee emp)  
+    {  
+        int i;  
+        using(SqlConnection con=new SqlConnection(cs))  
+        {  
+            con.Open();  
+            SqlCommand com = new SqlCommand("InsertUpdateEmployee", con);  
+            com.CommandType = CommandType.StoredProcedure;  
+            com.Parameters.AddWithValue("@Id",emp.EmployeeID);  
+            com.Parameters.AddWithValue("@Name", emp.Name);  
+            com.Parameters.AddWithValue("@Age", emp.Age);  
+            com.Parameters.AddWithValue("@State", emp.State);  
+            com.Parameters.AddWithValue("@Country", emp.Country);  
+            com.Parameters.AddWithValue("@Action", "Insert");  
+            i = com.ExecuteNonQuery();  
+        }  
+        return i;  
+    }  
+  
+    //Method for Updating Employee record  
+    public int Update(Employee emp)  
+    {  
+        int i;  
+        using (SqlConnection con = new SqlConnection(cs))  
+        {  
+            con.Open();  
+            SqlCommand com = new SqlCommand("InsertUpdateEmployee", con);  
+            com.CommandType = CommandType.StoredProcedure;  
+            com.Parameters.AddWithValue("@Id", emp.EmployeeID);  
+            com.Parameters.AddWithValue("@Name", emp.Name);  
+            com.Parameters.AddWithValue("@Age", emp.Age);  
+            com.Parameters.AddWithValue("@State", emp.State);  
+            com.Parameters.AddWithValue("@Country", emp.Country);  
+            com.Parameters.AddWithValue("@Action", "Update");  
+            i = com.ExecuteNonQuery();  
+        }  
+        return i;  
+    }  
+  
+    //Method for Deleting an Employee  
+    public int Delete(int ID)  
+    {  
+        int i;  
+        using (SqlConnection con = new SqlConnection(cs))  
+        {  
+            con.Open();  
+            SqlCommand com = new SqlCommand("DeleteEmployee", con);  
+            com.CommandType = CommandType.StoredProcedure;  
+            com.Parameters.AddWithValue("@Id", ID);  
+            i = com.ExecuteNonQuery();  
+        }  
+        return i;  
+    }  
+}  
+---------
+ 
+In Controller.cs file
+public class HomeController : Controller  
+{  
+    EmployeeDB empDB = new EmployeeDB();  
+    // GET: Home  
+    public ActionResult Index()  
+    {  
+        return View();  
+    }  
+    public JsonResult List()  
+    {  
+        return Json(empDB.ListAll(),JsonRequestBehavior.AllowGet);  
+    }  
+    public JsonResult Add(Employee emp)  
+    {  
+        return Json(empDB.Add(emp), JsonRequestBehavior.AllowGet);  
+    }  
+    public JsonResult GetbyID(int ID)  
+    {  
+        var Employee = empDB.ListAll().Find(x => x.EmployeeID.Equals(ID));  
+        return Json(Employee, JsonRequestBehavior.AllowGet);  
+    }  
+    public JsonResult Update(Employee emp)  
+    {  
+        return Json(empDB.Update(emp), JsonRequestBehavior.AllowGet);  
+    }  
+    public JsonResult Delete(int ID)  
+    {  
+        return Json(empDB.Delete(ID), JsonRequestBehavior.AllowGet);  
+    }  
+}  
+
+In Index view
+<script src="~/Scripts/jquery-1.9.1.js"></script>  
+<script src="~/Scripts/bootstrap.js"></script>  
+<link href="~/Content/bootstrap.css" rel="stylesheet" />  
+<script src="~/Scripts/employee.js"></script> 
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" onclick="clearTextBox();">Add New Employee</button><br /><br /> 
+<button type="button" class="btn btn-primary" id="btnAdd" onclick="return Add();">Add</button>  
+                    <button type="button" class="btn btn-primary" id="btnUpdate" style="display:none;" onclick="Update();">Update</button>  
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>  
+-------------------------------------
+Employee.js file
+$(document).ready(function () {  
+    loadData();  
+});  
+  
+//Load Data function  
+function loadData() {  
+    $.ajax({  
+        url: "/Home/List",  
+        type: "GET",  
+        contentType: "application/json;charset=utf-8",  
+        dataType: "json",  
+        success: function (result) {  
+            var html = '';  
+            $.each(result, function (key, item) {  
+                html += '<tr>';  
+                html += '<td>' + item.EmployeeID + '</td>';  
+                html += '<td>' + item.Name + '</td>';  
+                html += '<td>' + item.Age + '</td>';  
+                html += '<td>' + item.State + '</td>';  
+                html += '<td>' + item.Country + '</td>';  
+                html += '<td><a href="#" onclick="return getbyID(' + item.EmployeeID + ')">Edit</a> | <a href="#" onclick="Delele(' + item.EmployeeID + ')">Delete</a></td>';  
+                html += '</tr>';  
+            });  
+            $('.tbody').html(html);  
+        },  
+        error: function (errormessage) {  
+            alert(errormessage.responseText);  
+        }  
+    });  
+}  
+  
+//Add Data Function   
+function Add() {  
+    var res = validate();  
+    if (res == false) {  
+        return false;  
+    }  
+    var empObj = {  
+        EmployeeID: $('#EmployeeID').val(),  
+        Name: $('#Name').val(),  
+        Age: $('#Age').val(),  
+        State: $('#State').val(),  
+        Country: $('#Country').val()  
+    };  
+    $.ajax({  
+        url: "/Home/Add",  
+        data: JSON.stringify(empObj),  
+        type: "POST",  
+        contentType: "application/json;charset=utf-8",  
+        dataType: "json",  
+        success: function (result) {  
+            loadData();  
+            $('#myModal').modal('hide');  
+        },  
+        error: function (errormessage) {  
+            alert(errormessage.responseText);  
+        }  
+    });  
+}  
+  
+//Function for getting the Data Based upon Employee ID  
+function getbyID(EmpID) {  
+    $('#Name').css('border-color', 'lightgrey');  
+    $('#Age').css('border-color', 'lightgrey');  
+    $('#State').css('border-color', 'lightgrey');  
+    $('#Country').css('border-color', 'lightgrey');  
+    $.ajax({  
+        url: "/Home/getbyID/" + EmpID,  
+        typr: "GET",  
+        contentType: "application/json;charset=UTF-8",  
+        dataType: "json",  
+        success: function (result) {  
+            $('#EmployeeID').val(result.EmployeeID);  
+            $('#Name').val(result.Name);  
+            $('#Age').val(result.Age);  
+            $('#State').val(result.State);  
+            $('#Country').val(result.Country);  
+  
+            $('#myModal').modal('show');  
+            $('#btnUpdate').show();  
+            $('#btnAdd').hide();  
+        },  
+        error: function (errormessage) {  
+            alert(errormessage.responseText);  
+        }  
+    });  
+    return false;  
+}  
+  
+//function for updating employee's record  
+function Update() {  
+    var res = validate();  
+    if (res == false) {  
+        return false;  
+    }  
+    var empObj = {  
+        EmployeeID: $('#EmployeeID').val(),  
+        Name: $('#Name').val(),  
+        Age: $('#Age').val(),  
+        State: $('#State').val(),  
+        Country: $('#Country').val(),  
+    };  
+    $.ajax({  
+        url: "/Home/Update",  
+        data: JSON.stringify(empObj),  
+        type: "POST",  
+        contentType: "application/json;charset=utf-8",  
+        dataType: "json",  
+        success: function (result) {  
+            loadData();  
+            $('#myModal').modal('hide');  
+            $('#EmployeeID').val("");  
+            $('#Name').val("");  
+            $('#Age').val("");  
+            $('#State').val("");  
+            $('#Country').val("");  
+        },  
+        error: function (errormessage) {  
+            alert(errormessage.responseText);  
+        }  
+    });  
+}  
+  
+//function for deleting employee's record  
+function Delele(ID) {  
+    var ans = confirm("Are you sure you want to delete this Record?");  
+    if (ans) {  
+        $.ajax({  
+            url: "/Home/Delete/" + ID,  
+            type: "POST",  
+            contentType: "application/json;charset=UTF-8",  
+            dataType: "json",  
+            success: function (result) {  
+                loadData();  
+            },  
+            error: function (errormessage) {  
+                alert(errormessage.responseText);  
+            }  
+        });  
+    }  
+}  
+  
+//Function for clearing the textboxes  
+function clearTextBox() {  
+    $('#EmployeeID').val("");  
+    $('#Name').val("");  
+    $('#Age').val("");  
+    $('#State').val("");  
+    $('#Country').val("");  
+    $('#btnUpdate').hide();  
+    $('#btnAdd').show();  
+    $('#Name').css('border-color', 'lightgrey');  
+    $('#Age').css('border-color', 'lightgrey');  
+    $('#State').css('border-color', 'lightgrey');  
+    $('#Country').css('border-color', 'lightgrey');  
+}  
+//Valdidation using jquery  
+function validate() {  
+    var isValid = true;  
+    if ($('#Name').val().trim() == "") {  
+        $('#Name').css('border-color', 'Red');  
+        isValid = false;  
+    }  
+    else {  
+        $('#Name').css('border-color', 'lightgrey');  
+    }  
+    if ($('#Age').val().trim() == "") {  
+        $('#Age').css('border-color', 'Red');  
+        isValid = false;  
+    }  
+    else {  
+        $('#Age').css('border-color', 'lightgrey');  
+    }  
+    if ($('#State').val().trim() == "") {  
+        $('#State').css('border-color', 'Red');  
+        isValid = false;  
+    }  
+    else {  
+        $('#State').css('border-color', 'lightgrey');  
+    }  
+    if ($('#Country').val().trim() == "") {  
+        $('#Country').css('border-color', 'Red');  
+        isValid = false;  
+    }  
+    else {  
+        $('#Country').css('border-color', 'lightgrey');  
+    }  
+    return isValid;  
+}  
+------------------------------
+SMTP
+
+public class MailModel {  
+    public string From {  
+        get;  
+        set;  
+    }  
+    public string To {  
+        get;  
+        set;  
+    }  
+    public string Subject {  
+        get;  
+        set;  
+    }  
+    public string Body {  
+        get;  
+        set;  
+    }  
+}  
+
+using System;  
+using System.Collections.Generic;  
+using System.Linq;  
+using System.Net.Mail;  
+using System.Web;  
+using System.Web.Mvc;  
+namespace SendMail.Controllers {  
+    public class SendMailerController: Controller {  
+        //  
+        // GET: /SendMailer/  
+        public ActionResult Index() {  
+                return View();  
+            }  
+            [HttpPost]  
+        public ViewResult Index(SendMail.Models.MailModel _objModelMail) {  
+            if (ModelState.IsValid) {  
+                MailMessage mail = new MailMessage();  
+                mail.To.Add(_objModelMail.To);  
+                mail.From = new MailAddress(_objModelMail.From);  
+                mail.Subject = _objModelMail.Subject;  
+                string Body = _objModelMail.Body;  
+                mail.Body = Body;  
+                mail.IsBodyHtml = true;  
+                SmtpClient smtp = new SmtpClient();  
+                smtp.Host = "smtp.gmail.com";  
+                smtp.Port = 587;  
+                smtp.UseDefaultCredentials = false;  
+                smtp.Credentials = new System.Net.NetworkCredential("username", "password"); // Enter seders User name and password  
+                smtp.EnableSsl = true;  
+                smtp.Send(mail);  
+                return View("Index", _objModelMail);  
+            } else {  
+                return View();  
+            }  
+        }  
+    }  
+}  
+
+@model SendMail.Models.MailModel  
+@{  
+ViewBag.Title = "Index";  
+}  
+<h2>Index</h2>  
+<fieldset>  
+   <legend>  
+      Send Email  
+   </legend>  
+   @using (Html.BeginForm())  
+      {  
+      @Html.ValidationSummary()  
+      <p>From: </p>  
+      <p>@Html.TextBoxFor(m=>m.From)</p>  
+      <p>To: </p>  
+      <p>@Html.TextBoxFor(m=>m.To)</p>  
+      <p>Subject: </p>  
+      <p>@Html.TextBoxFor(m=>m.Subject)</p>  
+      <p>Body: </p>  
+      <p>@Html.TextAreaFor(m=>m.Body)</p>  
+   <input type ="submit" value ="Send" />  
+   } </fieldset>
+-------------------------------------
+Multilanguage
+Create resource folder and add new item as resourse in it 
+Name like language.es.resx, language.fr.resx, language.resx
+Add class in model folder
+public class Employee
+    {
+        [Display(Name = "FirstName", ResourceType =typeof(Language))]
+        [Required(ErrorMessageResourceType=typeof(Language),ErrorMessageResourceName ="FirstNameRequired")]
+        public string FirstName { get; set; }
+
+    
+language controller.cs
+public class LanguageController : Controller
+    {
+        // GET: Language
+        public ActionResult Index(string language)
+        {
+            if(!String.IsNullOrEmpty(language))
+            {
+                Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture(language);
+                Thread.CurrentThread.CurrentUICulture = new CultureInfo(language);
+            }
+            HttpCookie cookie = new HttpCookie("Languages");
+            cookie.Value = language;
+            Response.Cookies.Add(cookie);
+            return View();
+        }
+    }
+
+In homecontroller.cs 
+[HttpPost]
+        public ActionResult Index(string FirstName)
+        {
+            return View();
+        }
+        
+----------------------------------------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Web;
+
+namespace prac_04_new.Models
+{
+    public class Course
+    {
+        [Key]
+        public int courseId { get; set; }
+        [DataType(DataType.Text)]
+        [Required(ErrorMessage = "Please enter 8 length course code"), MaxLength(8)]
+        [Display(Name = "Course code")]
+
+        public string courseCode { get; set; }
+        [DataType(DataType.Text)]
+        [Required(ErrorMessage = "Please enter course name"), MaxLength(50)]
+        [Display(Name = "Course Name")]
+        public string courseName { get; set; }
+        public virtual ICollection<Students> stud { get; set; }
+    }
+    public class Students
+    {
+        [Key]
+        public int studentId { get; set; }
+        [DataType(DataType.Text)]
+        [Required(ErrorMessage = "Please enter name"), MaxLength(30)]
+        [Display(Name = "Student Name")]
+        public string studName { get; set; }
+        public string studGender { get; set; }
+        [DataType(DataType.EmailAddress)]
+        [Required(ErrorMessage = "Please enter Email ID")]
+        [RegularExpression(@"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$", ErrorMessage = "Email is not valid.")]
+        public string studEmail { get; set; }
+        [ForeignKey("courseId")]
+        public virtual Course course { get; set; }
+        [Display(Name = "Course")]
+        public virtual int courseId { get; set; }
+    }
+}
+
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Web;
+
+namespace prac_04_new.Models
+{
+    public class manageContext:DbContext
+    {
+        public manageContext() : base("name=manageContext")
+        { }
+        public DbSet<Course> tblCourse { get; set; }
+        public DbSet<Students> tblStud { get; set; }
+    }
+}
+
+Index.cshtml
+
+<h2>Index</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<p>
+    @using (Html.BeginForm("Index", "Students", FormMethod.Get))
+    {
+        <p>Search by Course Code: </p>@Html.TextBox("Search")<input type="submit" value="Search" />
+    }
+</p>
+<table class="table">
+    <tr>
+
+
+Index method
+public ActionResult Index(string search)
+        {
+            var tblStud = db.tblStud.Include(s => s.course);
+            return View(tblStud.Where(model=>model.course.courseCode.StartsWith(search)||search==null).ToList());
+        }
+
