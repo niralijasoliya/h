@@ -1,0 +1,1986 @@
+===================================================================
+In Fragment create method write action this type
+------------------------------------------------------------------------
+public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        btn1 = (Button) view.findViewById(R.id.login);
+        email = (EditText) view.findViewById(R.id.username);
+        password=(EditText) view.findViewById(R.id.password);
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(getActivity(),Dashboard.class);
+                startActivity(intent);
+
+            }
+        });
+    }
+--------------------------------------------
+to move one activity to another
+
+Intent intent=new Intent(getApplicationContext(),Update.class);
+                startActivity(intent);
+
+---------------------------------------------
+work with shared preference
+
+SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MySharedPref",MODE_PRIVATE);
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Random rnd = new Random();
+                //int number = rnd.nextInt(999999);
+                // this will convert any number sequence into 6 character.
+                //otp=String.format("%06d", number);
+                //sendSMSMessage(otp,phoneNo);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("name", name.getText().toString());
+                editor.putString("email", email.getText().toString());
+                editor.putString("address", address.getText().toString());
+                editor.putString("password", password.getText().toString());
+                editor.putString("phone", phone.getText().toString());
+                editor.putString("DOB", dob.getText().toString());
+                //editor.putString("OTP", otp);
+                editor.apply();
+------------------------------------------------
+retrive data from shared
+
+SharedPreferences sharedPreferences = getSharedPreferences("MySharedPref",MODE_PRIVATE);
+        String Name = sharedPreferences.getString("name", "");
+        String Email = sharedPreferences.getString("email", "");
+        String Phone = sharedPreferences.getString("phone", "");
+        String Password = sharedPreferences.getString("password", "");
+        String Address = sharedPreferences.getString("address", "");
+        String Dob = sharedPreferences.getString("DOB", "");
+        name.setText(Name);
+        
+----------------------------------------------------------------
+for fragment transition in mainactivity
+
+package com.example.prac01;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+public class MainActivity extends AppCompatActivity {
+    Button btn1,btn2;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        View.OnClickListener listener = new View.OnClickListener() {
+            public void onClick(View view) {
+                Fragment fragment = null;
+                if(view == findViewById(R.id.button1)){
+                    fragment = new registration();
+                } else {
+                    fragment = new login();
+                }
+                FragmentManager manager = getSupportFragmentManager();
+                FragmentTransaction transaction = manager.beginTransaction();
+                transaction.addToBackStack(null);
+                transaction.replace(R.id.frameLayout4, fragment);
+                transaction.commit();
+            }
+        };
+        btn1 = (Button)findViewById(R.id.button);
+        btn1.setOnClickListener(listener);
+        btn2 = (Button)findViewById(R.id.button1);
+        btn2.setOnClickListener(listener);
+    }
+}
+----------------------------------------------------
+In constraint ya other layout put below framelayout to change fragment at run time
+
+<FrameLayout
+        android:id="@+id/frameLayout4"
+        android:layout_width="377dp"
+        android:layout_height="336dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <fragment
+            android:id="@+id/fragment1"
+            android:name="com.example.prac01.login"
+            android:layout_width="match_parent"
+            android:layout_height="318dp"
+            android:layout_weight="1"
+            tools:layout="@layout/fragment_login"></fragment>
+    </FrameLayout>
+=========================================================
+ListView
+-------------------------------------------------
+<ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+------------------------------------------------
+mainActivity.java
+
+public class MainActivity extends AppCompatActivity {
+  
+    ListView l;
+    String tutorials[]
+        = { "Algorithms", "Data Structures",
+            "Languages", "Interview Corner",
+            "GATE", "ISRO CS",
+            "UGC NET CS", "CS Subjects",
+            "Web Technologies" };
+  
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        l = findViewById(R.id.list);
+        ArrayAdapter<String> arr;
+        arr
+            = new ArrayAdapter<String>(
+                this,
+                R.layout.support_simple_spinner_dropdown_item,
+                tutorials);
+        l.setAdapter(arr);
+    }
+}
+-----------------------------------------------
+
+=======================================================
+Tab Layout
+-------------------------------------------------------
+dependency
+implementation 'com.android.support:design:26.1.0'  
+----------------------------------------------------
+xml file
+<android.support.design.widget.TabLayout  
+        android:id="@+id/tabLayout"  
+        android:layout_width="match_parent"  
+        android:layout_height="wrap_content"  
+        android:background="#1db995">  
+    </android.support.design.widget.TabLayout>  
+  
+    <android.support.v4.view.ViewPager  
+        android:id="@+id/viewPager"  
+        android:layout_width="355dp"  
+        android:layout_height="455dp"  
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout"  
+        tools:layout_editor_absoluteX="8dp" />  
+-------------------------------------------------------
+MainActivity.java
+public class MainActivity extends AppCompatActivity {  
+    TabLayout tabLayout;  
+    ViewPager viewPager;  
+    @Override  
+    protected void onCreate(Bundle savedInstanceState) {  
+        super.onCreate(savedInstanceState);  
+        setContentView(R.layout.activity_main);  
+  
+        tabLayout=(TabLayout)findViewById(R.id.tabLayout);  
+        viewPager=(ViewPager)findViewById(R.id.viewPager);  
+  
+        tabLayout.addTab(tabLayout.newTab().setText("Home"));  
+        tabLayout.addTab(tabLayout.newTab().setText("Sport"));  
+        tabLayout.addTab(tabLayout.newTab().setText("Movie"));  
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);  
+  
+        final MyAdapter adapter = new MyAdapter(this,getSupportFragmentManager(), tabLayout.getTabCount());  
+        viewPager.setAdapter(adapter);  
+  
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));  
+  
+         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {  
+            @Override  
+            public void onTabSelected(TabLayout.Tab tab) {  
+                viewPager.setCurrentItem(tab.getPosition());  
+            }  
+  
+            @Override  
+            public void onTabUnselected(TabLayout.Tab tab) {  
+  
+            }  
+  
+            @Override  
+            public void onTabReselected(TabLayout.Tab tab) {  
+  
+            }  
+        });  
+  
+    }  
+} 
+---------------------------------------------------------------------
+MyAdapter.java
+
+public class MyAdapter extends FragmentPagerAdapter {  
+  
+    private Context myContext;  
+    int totalTabs;  
+  
+    public MyAdapter(Context context, FragmentManager fm, int totalTabs) {  
+        super(fm);  
+        myContext = context;  
+        this.totalTabs = totalTabs;  
+    }  
+  
+    // this is for fragment tabs  
+    @Override  
+    public Fragment getItem(int position) {  
+        switch (position) {  
+            case 0:  
+                HomeFragment homeFragment = new HomeFragment();  
+                return homeFragment;  
+            case 1:  
+                SportFragment sportFragment = new SportFragment();  
+                return sportFragment;  
+            case 2:  
+                MovieFragment movieFragment = new MovieFragment();  
+                return movieFragment;  
+            default:  
+                return null;  
+        }  
+    }  
+// this counts total number of tabs  
+    @Override  
+    public int getCount() {  
+        return totalTabs;  
+    }  
+}  
+--------------------------------------------------------
+=======================================================================
+Context menu
+
+in xml file
+
+<ListView  
+        android:layout_width="368dp"  
+        android:layout_height="495dp"  
+        android:id="@+id/listView"  
+        android:layout_marginEnd="8dp"  
+        android:layout_marginStart="8dp"  
+        android:layout_marginTop="8dp"  
+        app:layout_constraintEnd_toEndOf="parent"  
+        app:layout_constraintHorizontal_bias="0.0"  
+        app:layout_constraintStart_toStartOf="parent"  
+        app:layout_constraintTop_toTopOf="parent" />  
+---------------------------------------------------------
+Create a separate menu_main.xml file in menu directory for menu items.
+
+<?xml version="1.0" encoding="utf-8"?>  
+<menu xmlns:android="http://schemas.android.com/apk/res/android">  
+    <item android:id="@+id/call"  
+        android:title="Call" />  
+    <item android:id="@+id/sms"  
+        android:title="SMS" />  
+</menu>
+---------------------------------------------------------
+MainActivity
+
+public class MainActivity extends AppCompatActivity {  
+    ListView listView;  
+    String contacts[]={"Ajay","Sachin","Sumit","Tarun","Yogesh"};  
+    @Override  
+    protected void onCreate(Bundle savedInstanceState) {  
+        super.onCreate(savedInstanceState);  
+        setContentView(R.layout.activity_main);  
+        listView=(ListView)findViewById(R.id.listView);  
+        ArrayAdapter<String> adapter=new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,contacts);  
+        listView.setAdapter(adapter);  
+        // Register the ListView  for Context menu  
+        registerForContextMenu(listView);  
+    }  
+    @Override  
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo)  
+    {  
+        super.onCreateContextMenu(menu, v, menuInfo);  
+        MenuInflater inflater = getMenuInflater();  
+        inflater.inflate(R.menu.menu_main, menu);  
+        menu.setHeaderTitle("Select The Action");  
+    }  
+    @Override  
+    public boolean onContextItemSelected(MenuItem item){  
+        if(item.getItemId()==R.id.call){  
+            Toast.makeText(getApplicationContext(),"calling code",Toast.LENGTH_LONG).show();  
+        }  
+        else if(item.getItemId()==R.id.sms){  
+            Toast.makeText(getApplicationContext(),"sending sms code",Toast.LENGTH_LONG).show();  
+        }else{  
+            return false;  
+        }  
+        return true;  
+    }  
+}  
+=========================================================================
+Sensor
+
+package com.example.sensortutorial;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class SensorTypeActivity extends AppCompatActivity implements SensorEventListener {
+
+    private TextView textView;
+
+    private SensorManager sensorManager;
+    private Sensor accelerometerSensor;
+    private Sensor proximitySensor;
+    private Sensor lightSensor;
+    private Sensor stepCounterSensor;
+    private Sensor tempSensor;
+    private Sensor gyroscopeSensor;
+    private int currentSensor;
+    private long lastUpdate = 0;
+    private float last_x, last_y, last_z;
+    private static final int SHAKE_THRESHOLD = 600;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sensor_type);
+        textView = findViewById(R.id.tvResult);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        proximitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+        gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+        tempSensor = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+
+    }
+    public boolean checkSensorAvailability(int sensorType) {
+        boolean isSensor = false;
+        if (sensorManager.getDefaultSensor(sensorType) != null) {
+            isSensor = true;
+        }
+        return isSensor;
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == currentSensor) {
+        //    Toast.makeText(getApplicationContext(),event.sensor.getType(),Toast.LENGTH_LONG).show();
+            if (currentSensor == Sensor.TYPE_LIGHT) {
+                float valueZ = event.values[0];
+                textView.setText("Brightness " + valueZ);
+            } else if (currentSensor == Sensor.TYPE_PROXIMITY) {
+                float distance = event.values[0];
+                textView.setText("Proximity " + distance);
+            } else if (currentSensor == Sensor.TYPE_STEP_DETECTOR) {
+                float steps = event.values[0];
+                textView.setText("Steps : " + steps);
+            } else if (currentSensor == Sensor.TYPE_ACCELEROMETER) {
+                float x = event.values[0];
+                float y = event.values[1];
+                float z = event.values[2];
+
+                long curTime = System.currentTimeMillis();
+
+                if ((curTime - lastUpdate) > 100) {
+                    long diffTime = (curTime - lastUpdate);
+                    lastUpdate = curTime;
+
+                    float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+
+                    if (speed > SHAKE_THRESHOLD) {
+                        Toast.makeText(getApplicationContext(), "Your phone just shook", Toast.LENGTH_LONG).show();
+                    }
+
+                    last_x = x;
+                    last_y = y;
+                    last_z = z;
+                }
+            } else if (currentSensor == Sensor.TYPE_GYROSCOPE) {
+                if (event.values[2] > 0.5f) {
+                    textView.setText("Anti Clock");
+                } else if (event.values[2] < -0.5f) {
+                    textView.setText("Clock");
+                }
+            } else if (currentSensor == Sensor.TYPE_AMBIENT_TEMPERATURE) {
+                textView.setText("Ambient Temp in Celsius :" + event.values[0]);
+            }
+
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+    public void accelerometerSensorOnClick(View view) {
+        if (checkSensorAvailability(Sensor.TYPE_ACCELEROMETER)) {
+            currentSensor = Sensor.TYPE_ACCELEROMETER;
+        }else {
+            textView.setText("Accelerometer not available");
+        }
+    }
+
+    public void proximitySensorOnClick(View view) {
+        if (checkSensorAvailability(Sensor.TYPE_PROXIMITY)) {
+            currentSensor = Sensor.TYPE_PROXIMITY;
+        }else {
+            textView.setText("Proximity Sensor not available");
+        }
+    }
+
+    public void gyroscopeSensorOnClick(View view) {
+        if (checkSensorAvailability(Sensor.TYPE_GYROSCOPE)) {
+            currentSensor = Sensor.TYPE_GYROSCOPE;
+        } else {
+            textView.setText("Gyroscope Sensor not available");
+        }
+    }
+
+    public void lightSensorOnClick(View view) {
+        if (checkSensorAvailability(Sensor.TYPE_LIGHT)) {
+            currentSensor = Sensor.TYPE_LIGHT;
+        } else {
+            textView.setText("Light Sensor not available");
+        }
+    }
+
+
+    public void stepCounterOnClick(View view) {
+        if (checkSensorAvailability(Sensor.TYPE_STEP_DETECTOR)) {
+            currentSensor = Sensor.TYPE_STEP_DETECTOR;
+        } else {
+            textView.setText("Step Counter Sensor not available");
+        }
+    }
+
+    public void ambientTempSensorOnClick(View view) {
+        if (checkSensorAvailability(Sensor.TYPE_AMBIENT_TEMPERATURE)) {
+            currentSensor = Sensor.TYPE_AMBIENT_TEMPERATURE;
+        } else {
+            textView.setText("Ambient Temperature Sensor not available");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        sensorManager.registerListener(this, accelerometerSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, lightSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, proximitySensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, stepCounterSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, tempSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, gyroscopeSensor,
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+}
+-------------------------------------------------------------------
+sensor List
+
+package com.example.sensortutorial;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
+
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    private SensorManager mgr;
+    private TextView txtList;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        mgr = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
+        txtList = (TextView)findViewById(R.id.sensorslist);
+        List<Sensor> sensorList = mgr.getSensorList(Sensor.TYPE_ALL);
+        StringBuilder strBuilder = new StringBuilder();
+        for(Sensor s: sensorList){
+            strBuilder.append(s.getType()+"----"+s.getName()+"\n");
+        }
+        txtList.setVisibility(View.VISIBLE);
+        txtList.setText(strBuilder);
+    }
+
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+}
+----------------------------------------------------------------------
+change background color based on sense
+
+package com.example.sensortutorial;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class ChangeBGActivity extends AppCompatActivity implements SensorEventListener {
+    private SensorManager sensorManager;
+    private boolean isColor = false;
+    private TextView view;
+    private RelativeLayout layout;
+    private long lastUpdate;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_change_b_g);
+        view = (TextView) findViewById(R.id.textView);
+        layout = (RelativeLayout) findViewById(R.id.rellayout);
+        layout.setBackgroundColor(Color.BLUE);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        lastUpdate = System.currentTimeMillis();
+    }
+    //overriding two methods of SensorEventListener
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            getAccelerometer(event);
+        }
+
+    }
+
+    private void getAccelerometer(SensorEvent event) {
+        float[] values = event.values;
+        // Movement
+        float x = values[0];
+        float y = values[1];
+        float z = values[2];
+
+        float accelationSquareRoot = (x * x + y * y + z * z)
+                / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+
+        long actualTime = System.currentTimeMillis();
+        Toast.makeText(getApplicationContext(),String.valueOf(accelationSquareRoot)+" "+
+                SensorManager.GRAVITY_EARTH,Toast.LENGTH_SHORT).show();
+
+        if (accelationSquareRoot >= 2) //it will be executed if you shuffle
+        {
+
+            if (actualTime - lastUpdate < 200) {
+                return;
+            }
+            lastUpdate = actualTime;//updating lastUpdate for next shuffle
+            if (isColor) {
+                layout.setBackgroundColor(Color.BLUE);
+
+            } else {
+                layout.setBackgroundColor(Color.CYAN);
+            }
+            isColor = !isColor;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // register this class as a listener for the orientation and
+        // accelerometer sensors
+        sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_NORMAL);
+    }
+
+    @Override
+    protected void onPause() {
+        // unregister listener
+        super.onPause();
+        sensorManager.unregisterListener(this);
+    }
+}
+========================================================================
+Graphs
+------------------------------------------------
+Add dependency in gradle file
+implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+barChartGraph.java
+
+package com.example.prac2;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class barChartGraph extends Fragment {
+    BarChart chart;
+    public barChartGraph() {
+        // Required empty public constructor
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_bar_chart_graph, container, false);
+        chart = view.findViewById(R.id.report_barchartgraph);
+        setData();
+        return view;
+    }
+    void setData(){
+        List<BarEntry> entries = new ArrayList<>();
+        entries.add(new BarEntry(2022,300));
+        entries.add(new BarEntry(2021,200));
+        BarDataSet bardataset = new BarDataSet(entries, "Income Expense");
+        chart.animateY(5000);
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        BarData data = new BarData(bardataset);
+        bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
+        chart.setData(data);
+    }
+}
+
+pieChartGraph.java
+
+package com.example.prac2;
+
+import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
+import com.github.mikephil.charting.utils.ColorTemplate;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class pieChartGraph extends Fragment {
+    PieChart pieChart;
+    public pieChartGraph() {
+        // Required empty public constructor
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_pie_chart_graph, container, false);
+        pieChart  = view.findViewById(R.id.report_piechatgraph);
+        setData();
+        return view;
+    }
+
+    void setData(){
+        List<PieEntry> entries = new ArrayList<>();
+        entries.add(new PieEntry(25.5f, "Expense"));
+        entries.add(new PieEntry(75.5f, "Income"));
+
+        PieDataSet set = new PieDataSet(entries, "2021");
+        PieData data = new PieData(set);
+        set.setColors(ColorTemplate.COLORFUL_COLORS);
+        pieChart.setData(data);
+        pieChart.animateXY(5000, 5000);
+    }
+}
+
+graphReport.java
+
+package com.example.prac2;
+
+import android.os.Bundle;
+
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
+
+public class graphReport extends Fragment {
+    Button pie,bar;
+    FragmentManager fragmentManager;
+    FragmentTransaction fragmentTransaction;
+    FrameLayout frameLayout;
+    public graphReport() {
+        // Required empty public constructor
+    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_graph_report, container, false);
+        pie = view.findViewById(R.id.pie_btn);
+        bar = view.findViewById(R.id.bar_btn);
+        frameLayout = view.findViewById(R.id.chart_loder);
+
+        fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+        try{
+            pie.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    frameLayout.removeAllViewsInLayout();
+                    fragmentTransaction.add(R.id.chart_loder,new pieChartGraph());
+                    fragmentTransaction.commit();
+                }
+            });
+
+            bar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    frameLayout.removeAllViewsInLayout();
+                    fragmentTransaction.add(R.id.chart_loder,new barChartGraph());
+                    fragmentTransaction.commit();
+                }
+            });
+        }catch(Exception e){;}
+
+        return view;
+    }
+}
+
+fragment_graph_report.xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/btnGroupIE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        app:checkedButton="@id/pie_btn"
+        app:singleSelection="true">
+
+        <Button
+            android:id="@+id/pie_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pie Chart" />
+
+        <Button
+            android:id="@+id/bar_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bar Chart" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:id="@+id/chart_loder"
+        />
+</LinearLayout>
+
+Fragment_pie_chart_graph.xml
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".pieChartGraph">
+
+
+    <com.github.mikephil.charting.charts.PieChart
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/report_piechatgraph"/>
+
+</FrameLayout>
+
+Fragment_bar_chart_graph.xml
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".barChartGraph">
+    <com.github.mikephil.charting.charts.BarChart
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/report_barchartgraph"
+        />
+</FrameLayout>
+
+====================================================================
+Recycler view - list
+-----------------------------------------------------------------
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".tabTransaction">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="80dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:background="#FF3F51B5"
+                android:padding="5dp"
+                android:textColor="#ffff"
+                android:text="NIL"
+                android:id="@+id/tabbar_trans_income_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/tabbar_trans_expense_view"
+                android:layout_width="match_parent"
+                android:layout_weight="1"
+                android:background="#FF2196F3"
+                android:padding="5dp"
+                android:text="NIL"
+                android:textColor="#ffff"
+                android:textAlignment="center"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerTrans"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </ScrollView>
+
+    </LinearLayout>
+</FrameLayout>
+----------------------------------------------------------------
+context.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/item_delete"
+        android:title="DELETE"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/item_edit"
+        android:title="EDIT"
+        app:showAsAction="never" />
+</menu>
+
+-----------------------------------------------
+CateListAdapter.java
+
+package com.example.prac2.RView;
+
+import android.content.Context;
+import android.content.DialogInterface;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.PopupMenu;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.prac2.ItemDao;
+import com.example.prac2.ItemDatabase;
+import com.example.prac2.R;
+
+public class CateListAdapter  extends RecyclerView.Adapter<CateListAdapter.ViewHolder> {
+    private CateData[] listdata;
+    private Context context;
+    public  CateListAdapter(CateData[] listdata,Context context){
+        this.listdata = listdata;
+        this.context = context;
+    }
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        View listItem= layoutInflater.inflate(R.layout.list_row, parent, false);
+        ViewHolder viewHolder = new ViewHolder(listItem);
+        return viewHolder;
+
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        final CateData myListData = listdata[position];
+        holder.textView.setText(listdata[position].getCategory());
+        holder.imageView.setImageResource(listdata[position].getImgid());
+        holder.relativeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popup = new PopupMenu(context, holder.relativeLayout);
+                popup.inflate(R.menu.context);
+                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.item_delete:
+                                createDeleteAlert();
+                                break;
+                            case R.id.item_edit:
+                                String name= myListData.getCategory();
+                                String category = "Expense";
+                                createEditDialog(name,category);
+                                break;
+                        }
+                        return false;
+                    }
+                });
+                popup.show();
+            }
+        });
+    }
+    EditText E_N;
+    RadioGroup E_C;
+    RadioButton E_C_E,E_C_I,E_C_B;
+    ItemDatabase itemDatabase;
+    void createEditDialog(String N,String C){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        View view = inflater.inflate(R.layout.cat_edit_form,null,false);
+        E_N = view.findViewById(R.id.tabbar_edit_txt_category);
+        E_C = view.findViewById(R.id.tabbar_edit_radiogroup);
+        E_C_E = view.findViewById(R.id.tabbar_edit_radio_expense);
+        E_C_I = view.findViewById(R.id.tabbar_edit_radio_income);
+        itemDatabase = ItemDatabase.getAppDatabase(context);
+
+        E_N.setText(N);
+        if(C.equals("Expense")){
+            E_C_E.setChecked(true);
+        } else {
+            E_C_I.setChecked(true);
+        }
+        builder.setView(view)
+                .setPositiveButton("SAVE", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        int selected = E_C.getCheckedRadioButtonId();
+                        E_C_B = view.findViewById(selected);
+                        String category = E_C_B.getText().toString();
+                        String name = E_N.getText().toString();
+                        com.example.prac2.Item item = new com.example.prac2.Item();
+                        item.setItemName(name);
+                        item.setItemCat(category);
+                        ItemDao dao = itemDatabase.itemDao();
+                        dao.update(item);
+                    }
+                })
+                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.show();
+    }
+    void createDeleteAlert(){
+        AlertDialog.Builder alert = new AlertDialog.Builder(context);
+        alert.setTitle("Are you sure want to delete?");
+                alert.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            }
+        });
+
+        alert.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+                    }
+                });
+
+        alert.show();
+    }
+    @Override
+    public int getItemCount() {
+        return listdata.length;
+    }
+
+    public  static class ViewHolder extends RecyclerView.ViewHolder {
+        public ImageView imageView;
+        public TextView textView;
+        public RelativeLayout relativeLayout;
+        public ViewHolder(View itemView) {
+            super(itemView);
+            this.imageView = itemView.findViewById(R.id.imageView);
+            this.textView = itemView.findViewById(R.id.textView);
+            this.relativeLayout = itemView.findViewById(R.id.relativeLayout);
+
+        }
+    }
+}
+
+=========================================================================
+Gesture
+------------------------------
+GestureDetector gestureDetector;
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+
+    gestureDetector=new GestureDetector(this, new GestureListener());
+}
+
+---
+private class GestureListener extends GestureDetector.SimpleOnGestureListener{
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        Toast.makeText(getApplicationContext(),"onSingleTapUp() called",Toast.LENGTH_SHORT).show();
+        return super.onSingleTapUp(e);
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+        Toast.makeText(getApplicationContext(),"onLongPress() called",Toast.LENGTH_SHORT).show();
+        super.onLongPress(e);
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        Toast.makeText(getApplicationContext(),"onScroll() called",Toast.LENGTH_SHORT).show();
+        return super.onScroll(e1, e2, distanceX, distanceY);
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        Toast.makeText(getApplicationContext(),"onFling() called",Toast.LENGTH_SHORT).show();
+        return super.onFling(e1, e2, velocityX, velocityY);
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+        Toast.makeText(getApplicationContext(),"onShowPress() called",Toast.LENGTH_SHORT).show();
+        super.onShowPress(e);
+    }
+
+    @Override
+    public boolean onDown(MotionEvent e) {
+        Toast.makeText(getApplicationContext(),"onDown() called",Toast.LENGTH_SHORT).show();
+        return super.onDown(e);
+    }
+
+    @Override
+    public boolean onDoubleTap(MotionEvent e) {
+        Toast.makeText(getApplicationContext(),"onDoubleTap() called",Toast.LENGTH_SHORT).show();
+        return super.onDoubleTap(e);
+    }
+
+    @Override
+    public boolean onDoubleTapEvent(MotionEvent e) {
+        Toast.makeText(getApplicationContext(),"onDoubleTapEvent() called",Toast.LENGTH_SHORT).show();
+        return super.onDoubleTapEvent(e);
+    }
+
+    @Override
+    public boolean onSingleTapConfirmed(MotionEvent e) {
+        Toast.makeText(getApplicationContext(),"onSingleTapConfirmed() called",Toast.LENGTH_SHORT).show();
+        return super.onSingleTapConfirmed(e);
+    }
+}
+-------------
+
+public boolean onTouchEvent(MotionEvent event) {
+    gestureDetector.onTouchEvent(event);
+    return super.onTouchEvent(event);
+}
+---------------------------------------
+To request pointer capture
+
+@Override
+public void onClick(View view) {
+    view.requestPointerCapture();
+}
+--------------------------
+
+private int mActivePointerId;
+public boolean onTouchEvent(MotionEvent event) {
+     // Get the pointer ID
+    mActivePointerId = event.getPointerId(0);
+    // Use the pointer ID to find the index of the active pointer and fetch its position
+     int pointerIndex = event.findPointerIndex(mActivePointerId);
+     // Get the pointer's current position
+    float x = event.getX(pointerIndex);
+    float y = event.getY(pointerIndex);
+   }
+-------------------------------
+Get motion event actions
+
+int action = MotionEventCompat.getActionMasked(event);
+// Get the index of the pointer associated with the action.
+int index = MotionEventCompat.getActionIndex(event);
+int xPos = -1;
+int yPos = -1;
+
+Log.d(DEBUG_TAG,"The action is " + actionToString(action));
+
+if (event.getPointerCount() > 1) {
+    Log.d(DEBUG_TAG,"Multitouch event");
+    // The coordinates of the current screen contact, relative to
+    // the responding View or Activity.
+    xPos = (int)MotionEventCompat.getX(event, index);
+    yPos = (int)MotionEventCompat.getY(event, index);
+
+} else {
+    // Single touch event
+    Log.d(DEBUG_TAG,"Single touch event");
+    xPos = (int)MotionEventCompat.getX(event, index);
+    yPos = (int)MotionEventCompat.getY(event, index);
+}
+...
+
+// Given an action int, returns a string description
+public static String actionToString(int action) {
+    switch (action) {
+
+        case MotionEvent.ACTION_DOWN: return "Down";
+        case MotionEvent.ACTION_MOVE: return "Move";
+        case MotionEvent.ACTION_POINTER_DOWN: return "Pointer Down";
+        case MotionEvent.ACTION_UP: return "Up";
+        case MotionEvent.ACTION_POINTER_UP: return "Pointer Up";
+        case MotionEvent.ACTION_OUTSIDE: return "Outside";
+        case MotionEvent.ACTION_CANCEL: return "Cancel";
+    }
+    return "";
+}
+-------------------------------
+Pinch to Zoom using ScaleGestureDetector
+
+public class MainActivity extends AppCompatActivity {
+    ImageView iv;
+    Matrix matrix=new Matrix();
+    float scale=1f;
+    ScaleGestureDetector SGD;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        iv = (ImageView) findViewById(R.id.imageView);
+        SGD=new ScaleGestureDetector(this, new ScaleListener());
+    }
+private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+           scale=scale*detector.getScaleFactor();
+           scale=Math.max(0.1f,Math.min(scale,5f));
+           matrix.setScale(scale, scale);
+           iv.setImageMatrix(matrix);
+           return true;
+        }
+ @Override
+    public boolean onScaleBegin(ScaleGestureDetector detector)  {
+        // do something when scale begin
+    }
+    @Override
+    public void onScaleEnd(ScaleGestureDetector detector) {
+        // do something when scale end
+}
+    }
+@Override
+    public boolean onTouchEvent(MotionEvent event) {
+        SGD.onTouchEvent(event);
+        return true;
+    }
+----------------------------------------
+
+Finding distance between two fingures/pointers
+
+
+public float distance(MotionEvent event, int first, int second) {
+  if (event.getPointerCount() >= 2) {
+    final float x = event.getX(first) - event.getX(second);
+    final float y = event.getY(first) - event.getY(second);
+    return (float) Math.sqrt(x * x + y * y);
+  } else {
+    return 0;
+  }
+}
+--------------------------------------------------------------------------------------------
+Menu [under menu folder creat menu.xml]
+
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".MyDashboard">
+    <item android:id="@+id/action_settings"
+        android:title="@string/action_settings"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_help"
+        android:title="@string/action_help"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+    <item android:id="@+id/action_update"
+        android:title="@string/action_update"
+        android:orderInCategory="100"
+        app:showAsAction="never"/>
+    <item android:title="add"
+        android:id="@+id/action_add"
+        android:orderInCategory="100"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_action_add"/>
+</menu>
+----------------------
+Inflact it
+
+@Override
+public boolean onCreateOptionsMenu(Menu menu) {
+    // Inflate the menu; this adds items to the action bar if it is present.
+    getMenuInflater().inflate(R.menu.menu_main, menu);
+    return true;
+}
+
+public boolean onOptionsItemSelected(MenuItem item) {
+        int item_id=item.getItemId();
+        switch (item.getItemId()) {
+            case R.id.action_settings:  {
+                return true;
+            }
+            case R.id.action_update: {
+                startActivity(new Intent(this, Update.class));
+                return true;
+            }
+
+            case R.id.action_add: {
+                startActivity(new Intent(this, AddCategories.class));
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+--------------------------------------------------------------------------------------------
+Room Database
+
+dependencies {
+    def room_version = "2.2.5"
+   
+    //room database dependencies
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    testImplementation "androidx.room:room-testing:$room_version"
+}
+-----------------
+@Entity
+public class User {
+  @PrimaryKey(autoGenerate = true)
+  private int id;
+ 
+  @ColumnInfo(name = "first_name")
+  private String firstName;
+ 
+  @ColumnInfo(name = "last_name")
+  private String lastName;
+ 
+  @ColumnInfo(name = "phone")
+  private String phone;
+ 
+  @ColumnInfo(name = "email")
+  private String email;
+ 
+  @ColumnInfo(name = "address")
+  private String address;
+ 
+  public int getId() {
+    return id;
+  }
+ 
+  public void setId(int id) {
+    this.id = id;
+  }
+ 
+  public String getFirstName() {
+    return firstName;
+  }
+ 
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+ 
+  public String getLastName() {
+    return lastName;
+  }
+ 
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+ 
+  public String getPhone() {
+    return phone;
+  }
+ 
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+ 
+  public String getEmail() {
+    return email;
+  }
+ 
+  public void setEmail(String email) {
+    this.email = email;
+  }
+ 
+  public String getAddress() {
+    return address;
+  }
+ 
+  public void setAddress(String address) {
+    this.address = address;
+  }
+}
+
+--------------------------
+@Dao
+public interface UserDao {
+  @Insert
+  Long insert(User u);
+     
+  @Query("SELECT * FROM `User` ORDER BY `id` DESC")
+  List<User> getAllUsers();
+     
+  @Query("SELECT * FROM `User` WHERE `id` =:id")
+  User getUser(int id);
+     
+  @Update
+  void update(User u);
+     
+  @Delete
+  void delete(User u);
+}
+-----------------------------
+@Database(entities = {User.class}, version = 1)
+
+public abstract class UserDatabase extends RoomDatabase
+ {
+  public abstract UserDao userDao();
+ 
+  private static UserDatabase INSTANCE;
+ 
+  public static UserDatabase getAppDatabase(Context context) {
+    if (INSTANCE == null) {
+      INSTANCE = Room.databaseBuilder(context.getApplicationContext(), UserDatabase.class, "user-database").build();
+    }
+    return INSTANCE;
+  }
+ 
+  public static void destroyInstance() {
+    INSTANCE = null;
+  }
+}
+--------------------------
+1. Insert 
+//get the database instance
+UserDatabase ud = UserDatabase.getAppDatabase(c.get());
+ 
+//init the entity
+User u = new User();
+u.setFirstName("John");
+u.setLastName("Doe");
+u.setPhone("1234567890");
+u.setEmail("johndoe@website.com");
+u.setAddress("Unknown");
+ 
+//init dao and perform operation
+UserDao dao = ud.userDao();
+dao.insert(u);
+-------------------
+2. Update
+//get the database instance
+UserDatabase ud = UserDatabase.getAppDatabase(c.get());
+ 
+//init the entity
+User u = new User();
+u.setId(3);
+u.setFirstName("Jane");
+u.setLastName("Doe");
+u.setPhone("0987654321");
+u.setEmail("janedoe@website.com");
+u.setAddress("Unknown");
+ 
+//init dao and perform operation
+UserDao dao = ud.userDao();
+dao.update(u);
+-------------------------
+3. Delete
+//get the database instance
+UserDatabase ud = UserDatabase.getAppDatabase(c.get());
+ 
+//init the entity
+User u = new User();
+u.setId(3);
+u.setFirstName("Jane");
+u.setLastName("Doe");
+u.setPhone("0987654321");
+u.setEmail("janedoe@website.com");
+u.setAddress("Unknown");
+ 
+//init dao and perform operation
+UserDao dao = ud.userDao();
+dao.delete(u);
+----------------------
+4. Retrieve/Read 
+//get the database instance
+UserDatabase ud = UserDatabase.getAppDatabase(c.get());
+ 
+//init dao and perform operation
+UserDao dao = ud.userDao();
+  //get all users
+List<User> users = dao.getAllUsers();
+  //get single user by id
+User u = dao.getUser(3);
+
+--------------------------
+Service
+
+start nd stop
+
+public class PlayerService extends Service {
+
+    MediaPlayer mp;
+    public PlayerService() {
+        super();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Toast.makeText(this, "Service was Created", Toast.LENGTH_LONG).show();
+        mp = MediaPlayer.create(getApplicationContext(),R.raw.myaudio);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        mp.start();
+        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+        return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mp.stop();
+        Toast.makeText(this, "Service Stopped", Toast.LENGTH_LONG).show();
+
+    }
+}
+
+----
+manifest
+
+<service android:name=".PlayerService" android:enabled="true" >
+</service>
+------------------
+public class MainActivity extends AppCompatActivity {
+    Button play, stop;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        play = findViewById(R.id.play);
+        stop = findViewById(R.id.Stop);
+        play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent service = new Intent(MainActivity.this, PlayerService.class);
+                startService(service);
+            }
+        });
+        stop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent service = new Intent(MainActivity.this, PlayerService.class);
+                stopService(service);
+            }
+        });
+    }
+}
+-------------------------------
+download with perogress
+
+public class AsynckThreadActivityEx extends AppCompatActivity {
+    Button btndownload;
+    TextView txt1;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_asynck_thread_ex);
+
+        btndownload = findViewById(R.id.Download);
+        txt1 = findViewById(R.id.data);
+    }
+    public void Download(View view)
+    {
+        MyTask myTask = new MyTask(this,txt1,btndownload);
+        myTask.execute();
+        btndownload.setEnabled(false);
+    }
+}
+
+Step 2 : Create MyTask which extends AsyncTask :
+
+public class MyTask extends AsyncTask<Void,Integer,String> {
+
+    TextView textView;
+    Button button;
+    Context context;
+    ProgressDialog progressDialog;
+
+    MyTask(Context context,TextView textView,Button button)
+    {
+        this.context = context;
+        this.textView = textView;
+        this.button = button;
+    }
+    @Override
+    protected void onPreExecute() {
+       progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle("Downloading in progress...");
+        progressDialog.setMax(10);
+       progressDialog.setProgress(0);
+        progressDialog.show();
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        textView.setText(s);
+        button.setEnabled(true);
+       progressDialog.hide();
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... values) {
+        progressDialog.setProgress(values[0]);
+        textView.setText("Download in progress");
+    }
+
+    @Override
+    protected String doInBackground(Void... voids) {
+        int i=0;
+
+        synchronized (this)
+        {
+            while(i<10)
+            {
+                try {
+                    wait(1000);
+                    i++;
+                    publishProgress(i);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "Download Complete";
+    }
+}
+----------------------
+Example : Simple service to send Random Numbers whenever the Activity requests for it!
+main_layout.xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <TextView
+        android:id="@+id/text_service"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Service Example"
+        android:layout_marginTop="10dp" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:id="@+id/start"
+        android:text="Request NUmber"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="30dp"
+        android:layout_gravity="center"
+        android:id="@+id/serviceText"
+        android:text="Center Text"/>
+</LinearLayout>
+
+ServiceActivity.java
+public class ServiceActivity extends Activity{
+    BoundedService mBoundService;
+    Boolean mServiceBound = false;
+    Button startService;
+    TextView serviceText;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main_layout);
+        startService = (Button) findViewById(R.id.start);
+        serviceText = (TextView) findViewById(R.id.serviceText);
+
+        startService.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int randomNuber = mBoundService.genRandomNumber();
+                serviceText.setText(String.valueOf(randomNuber));
+            }
+        });
+
+    }
+    @Override
+    protected void onStart() {
+
+        startService(new Intent(this, BoundedService.class));
+        Intent intent = new Intent(this,BoundedService.class);
+        bindService(intent,mServiceConnection, Context.BIND_AUTO_CREATE);
+        super.onStart();
+    }
+    @Override
+    protected void onStop() {
+        unbindService(mServiceConnection);
+        stopService(new Intent(this,BoundedService.class));
+        super.onStop();
+    }
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mServiceBound = false;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            BoundedService.LocalBoundedService myBinder = (BoundedService.LocalBoundedService) service;
+            mBoundService = myBinder.getService();
+            mServiceBound = true;
+        }
+    };
+}
+BoundedService.java
+import android.app.Service;
+import android.content.Intent;
+import android.os.Binder;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
+
+import java.util.Random;
+
+public class BoundedService extends Service {
+    private IBinder mBinder =  new LocalBoundedService();
+    Random randomNumber = new Random();
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return mBinder;
+    }
+    @Override
+    public boolean onUnbind(Intent intent) {
+
+        return true;
+    }
+    public int genRandomNumber()
+    {
+        return randomNumber.nextInt(10000);
+    }
+
+    public class LocalBoundedService extends Binder {
+        BoundedService getService() {
+            return BoundedService.this;
+        }
+    }
+}
+-----------------------------------
+AndroidManifest.xml
+
+<service android:name=".BoundedService" />
+---------------------
+Notification
+
+public class NotificationHelper {
+
+    private Context mContext;
+    private NotificationManager mNotificationManager;
+    private NotificationCompat.Builder mBuilder;
+    public static final String NOTIFICATION_CHANNEL_ID = "10001";
+
+    public NotificationHelper(Context context) {
+        mContext = context;
+    }
+
+    /**
+     * Create and push the notification
+     */
+    public void createNotification(String title, String message)
+    {
+        /**Creates an explicit intent for an Activity in your app**/
+        Intent resultIntent = new Intent(mContext , MainActivity.class);
+        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext,
+                0 /* Request code */, resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mBuilder = new NotificationCompat.Builder(mContext);
+        mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+        mBuilder.setContentTitle(title)
+                .setContentText(message)
+                .setAutoCancel(false)
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setContentIntent(resultPendingIntent);
+
+        mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+        {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            assert mNotificationManager != null;
+            mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
+            mNotificationManager.createNotificationChannel(notificationChannel);
+        }
+        assert mNotificationManager != null;
+        mNotificationManager.notify(0 /* Request Code */, mBuilder.build());
+    }
+}
+Step 2: Notification Activity 
+public class NotificationHelper {
+
+    private Context mContext;
+    private NotificationManager mNotificationManager;
+    private NotificationCompat.Builder mBuilder;
+    public static final String NOTIFICATION_CHANNEL_ID = "10001";
+
+    public NotificationHelper(Context context) {
+        mContext = context;
+    }
+
+    /**
+     * Create and push the notification
+     */
+    public void createNotification(String title, String message)
+    {
+        /**Creates an explicit intent for an Activity in your app**/
+        Intent resultIntent = new Intent(mContext , MainActivity.class);
+        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext,
+                0 /* Request code */, resultIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mBuilder = new NotificationCompat.Builder(mContext);
+        mBuilder.setSmallIcon(R.mipmap.ic_launcher);
+        mBuilder.setContentTitle(title)
+                .setContentText(message)
+                .setAutoCancel(false)
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setContentIntent(resultPendingIntent);
+
+        mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+        {
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.RED);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            assert mNotificationManager != null;
+            mBuilder.setChannelId(NOTIFICATION_CHANNEL_ID);
+            mNotificationManager.createNotificationChannel(notificationChannel);
+        }
+        assert mNotificationManager != null;
+        mNotificationManager.notify(0 /* Request Code */, mBuilder.build());
+    }
+}
+------------------------
+Alarm
+
+AlarmManager alarmManager= (AlarmManager) 
+context.getSystemService(ALARM_SERVICE);
+---------------------------
+public class MyReceiver extends BroadcastReceiver {
+
+@Override
+public void onReceive(Context context, Intent intent) {
+
+Toast.makeText(context, "Alarm Triggered", Toast.LENGTH_SHORT).show();
+
+}
+}
+--------------------------------
+public static final int REQUEST_CODE=101;
+
+Intent intent=new Intent(this,MyReceiver.class);
+
+PendingIntent.getBroadcast(this,REQUEST_CODE,intent,PendingIntent.FLAG_UPDATE_CURRENT);
+-----------------------------------
+AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+Intent intent = new Intent(this, MyReceiver.class);
+
+PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+-----------------------------------------------
+alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, System.currentTimeMillis() + AlarmManager.INTERVAL_HOUR, AlarmManager.INTERVAL_HOUR, pendingIntent);
+-----------------------------------------
+AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+Intent intent = new Intent(this, MyReceiver.class);
+
+PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+Calendar calendar = Calendar.getInstance();
+
+calendar.setTimeInMillis(System.currentTimeMillis());
+calendar.set(Calendar.HOUR_OF_DAY, 8);
+calendar.set(Calendar.MINUTE, 30);
+---------------------------
+alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+-----------------------------------------
+AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+Intent intent = new Intent(this, MyReceiver.class);
+PendingIntent pendingIntent = PendingIntent.getBroadcast(this, REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//This alarm will trigger once approximately after 1 hour and
+alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, System.currentTimeMillis() + AlarmManager.INTERVAL_HOUR, pendingIntent);
+-------------------------------------------
+Canceling the alarm
+
+public class AlarmActivity extends AppCompatActivity {
+    Button start;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_alarm);
+        start = findViewById(R.id.button);
+        start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startAlert();
+            }
+        });
+    }
+    public void startAlert() {
+        EditText text = findViewById(R.id.time);
+        int i = Integer.parseInt(text.getText().toString());
+        Intent intent = new Intent(this, MyAlarmBroadCastReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getApplicationContext(), 234324243, intent, 0);
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (i * 1000), pendingIntent);
+        Toast.makeText(this, "Alarm set in " + i + " seconds", Toast.LENGTH_LONG).show();
+    }
+
+}
+----------------------------------------
+register above file
+<receiver android:name=". MyAlarmBroadCastReceiver
+"/>
+-----------------------------------------
+public class MyAlarmBroadCastReceiver extends BroadcastReceiver {
+
+    MediaPlayer mp;
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        mp=MediaPlayer.create(context, R.raw.myaudio);
+        mp.start();
+        Toast.makeText(context, "Alarm Ringing....", Toast.LENGTH_LONG).show();
+    }
+}
+----------------------------------------------
